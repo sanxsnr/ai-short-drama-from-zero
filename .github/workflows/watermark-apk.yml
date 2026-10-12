@@ -1,0 +1,33 @@
+name: Build AI Watermark APK
+on:
+  push:
+    branches: [feature/ai-watermark-android]
+    paths:
+      - 'watermark-android/**'
+      - '.github/workflows/watermark-apk.yml'
+  workflow_dispatch:
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: watermark-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Build debug APK
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-watermark-debug-apk
+          path: watermark-android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
